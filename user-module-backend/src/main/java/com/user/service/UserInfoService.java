@@ -1,6 +1,7 @@
 package com.user.service;
 
 import com.user.entity.User;
+import com.user.exception.BusinessException;
 import com.user.vo.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public class UserInfoService {
     public UserInfoResponse getUserInfoById(Long userId) {
         User user = userService.findById(userId);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new BusinessException(404, "用户不存在");
         }
 
         return UserInfoResponse.builder()

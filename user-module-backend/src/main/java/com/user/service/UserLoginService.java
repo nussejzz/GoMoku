@@ -243,12 +243,26 @@ public class UserLoginService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void resetPassword(UserResetPasswordRequest request) {
+    public void resetPassword(UserResetPasswordRequest request, String authorization) {
         log.info("Password reset started for email={}", request.getEmail());
 
         User user = userService.findByEmail(request.getEmail());
         if (user == null) {
             throw new BusinessException(404, "用户不存在");
+        }
+
+        // 如果提供了 Token，验证是否是本人操作
+        if (authorization != null && !authorization.isEmpty()) {
+            UserVerifyResponse verifyResponse = verify(authorization);
+            if (verifyResponse.getValid() != null && verifyResponse.getValid()) {
+                // 验证邮箱是否匹配
+                if (!verifyResponse.getEmail().equals(request.getEmail())) {
+                    throw new BusinessException(403, "只能重置自己的密码");
+                }
+                log.info("Password reset with token verification: userId={}", verifyResponse.getUserId());
+            } else {
+                log.warn("Invalid token provided for password reset, but continuing with email verification");
+            }
         }
 
         // Verify email code
@@ -280,9 +294,23 @@ public class UserLoginService {
     }
 
     @Transactional
-    public void logout(Long userId) {
+    public void logout(String authorization) {
+        if (authorization == null || authorization.isEmpty()) {
+            throw new BusinessException(401, "未提供Token");
+        }
+
+        // 验证 Token 并获取 userId
+        UserVerifyResponse verifyResponse = verify(authorization);
+        if (verifyResponse.getValid() == null || !verifyResponse.getValid()) {
+            throw new BusinessException(401, "Token无效或已过期");
+        }
+
+        Long userId = verifyResponse.getUserId();
         log.info("User logout started for userId={}", userId);
+        
+        // 删除用户的 Token
         userTokenService.deleteByUserId(userId);
+        
         log.info("User logout completed successfully for userId={}", userId);
     }
 }

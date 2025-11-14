@@ -58,16 +58,18 @@ public class UserLoginController {
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "重置密码", description = "通过邮箱验证码重置密码")
-    public ApiResult<Void> resetPassword(@Valid @RequestBody UserResetPasswordRequest request) {
-        userLoginService.resetPassword(request);
+    @Operation(summary = "重置密码", description = "通过邮箱验证码重置密码（支持已登录用户验证身份）")
+    public ApiResult<Void> resetPassword(
+            @Valid @RequestBody UserResetPasswordRequest request,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        userLoginService.resetPassword(request, authorization);
         return ApiResult.success();
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "用户登出", description = "用户登出接口，清除Token")
-    public ApiResult<Void> logout(@RequestHeader("X-USER-ID") Long userId) {
-        userLoginService.logout(userId);
+    @Operation(summary = "用户登出", description = "用户登出接口，清除Token（需要提供有效的Token）")
+    public ApiResult<Void> logout(@RequestHeader("Authorization") String authorization) {
+        userLoginService.logout(authorization);
         return ApiResult.success();
     }
 }
