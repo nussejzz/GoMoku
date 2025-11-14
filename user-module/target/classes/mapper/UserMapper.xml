@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.user.entity.User">
+        <id column="id" property="id"/>
+        <result column="email" property="email"/>
+        <result column="nickname" property="nickname"/>
+        <result column="password_hash" property="passwordHash"/>
+        <result column="password_salt" property="passwordSalt"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="avatar_base64" property="avatarBase64"/>
+        <result column="country" property="country"/>
+        <result column="gender" property="gender"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.user.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `user` (email, nickname, password_hash, password_salt, avatar_url, avatar_base64, country, gender, status)
+        VALUES (#{email}, #{nickname}, #{passwordHash}, #{passwordSalt}, #{avatarUrl}, #{avatarBase64}, #{country}, #{gender}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.user.entity.User">
+        UPDATE `user`
+        <set>
+            <if test="email != null">email = #{email},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="passwordHash != null">password_hash = #{passwordHash},</if>
+            <if test="passwordSalt != null">password_salt = #{passwordSalt},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="avatarBase64 != null">avatar_base64 = #{avatarBase64},</if>
+            <if test="country != null">country = #{country},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `user` WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT * FROM `user` WHERE id = #{id}
+    </select>
+
+    <select id="findByEmail" resultMap="BaseResultMap">
+        SELECT * FROM `user` WHERE email = #{email}
+    </select>
+
+    <select id="findByNickname" resultMap="BaseResultMap">
+        SELECT * FROM `user` WHERE nickname = #{nickname}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT * FROM `user`
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM `user` WHERE email = #{email}
+    </select>
+
+    <select id="existsByNickname" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM `user` WHERE nickname = #{nickname}
+    </select>
+</mapper>
+
