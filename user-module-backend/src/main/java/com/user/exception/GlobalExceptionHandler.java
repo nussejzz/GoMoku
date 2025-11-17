@@ -41,7 +41,19 @@ public class GlobalExceptionHandler {
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
-        log.warn("参数验证异常: {}", errorMessage);
+        
+        // 记录详细的验证失败信息
+        String fieldDetails = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> {
+                    String fieldName = error.getField();
+                    Object rejectedValue = error.getRejectedValue();
+                    String valueStr = rejectedValue == null ? "null" : 
+                            (fieldName.toLowerCase().contains("password") ? "***" : rejectedValue.toString());
+                    return String.format("%s[%s]=%s", fieldName, valueStr, error.getDefaultMessage());
+                })
+                .collect(Collectors.joining(", "));
+        log.warn("参数验证异常: {} | 详细信息: {}", errorMessage, fieldDetails);
+        
         return ApiResult.error(400, "参数验证失败: " + errorMessage);
     }
 

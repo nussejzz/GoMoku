@@ -1,5 +1,7 @@
 package com.user.vo.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,9 +21,12 @@ public class UserResetPasswordRequest {
 
     @NotBlank(message = "Verification code cannot be blank")
     @Size(min = 6, max = 6, message = "Verification code must be 6 digits")
+    @JsonAlias({"verificationCode", "code", "verifyCode"})
     private String verificationCode;
 
     @NotBlank(message = "New password cannot be blank")
+    @JsonProperty("encryptedNewPassword")
+    @JsonAlias({"encryptedNewPassword", "newPassword", "password", "encryptedPassword"})
     private String encryptedNewPassword;
 }
 

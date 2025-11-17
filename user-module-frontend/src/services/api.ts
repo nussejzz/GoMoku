@@ -125,10 +125,19 @@ export const apiService = {
    * 重置密码
    */
   async resetPassword(request: Omit<UserResetPasswordRequest, 'encryptedPassword'> & { password: string }): Promise<void> {
+    if (!request.password || request.password.trim() === '') {
+      throw new Error('密码不能为空');
+    }
     const encryptedPassword = await encryptPassword(request.password);
+    if (!encryptedPassword || encryptedPassword.trim() === '') {
+      throw new Error('密码加密失败，请重试');
+    }
+    // 尝试同时发送两种可能的字段名，以兼容不同的后端实现
     await api.post<ApiResult<void>>('/reset-password', {
-      ...request,
-      encryptedPassword,
+      email: request.email,
+      verificationCode: request.verificationCode,
+      newPassword: encryptedPassword,
+      encryptedPassword: encryptedPassword,
     });
   },
 

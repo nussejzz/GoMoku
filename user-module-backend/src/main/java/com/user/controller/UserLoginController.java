@@ -62,6 +62,10 @@ public class UserLoginController {
     public ApiResult<Void> resetPassword(
             @Valid @RequestBody UserResetPasswordRequest request,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
+        log.debug("收到重置密码请求: email={}, verificationCode={}, encryptedNewPassword={}", 
+                request.getEmail(), 
+                request.getVerificationCode(), 
+                request.getEncryptedNewPassword() != null ? "***" : "null");
         userLoginService.resetPassword(request, authorization);
         return ApiResult.success();
     }
